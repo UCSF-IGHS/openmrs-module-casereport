@@ -108,7 +108,6 @@ public final class ClinicalDocumentGenerator {
 		if (log.isDebugEnabled()) {
 			CaseReportService crs = Context.getService(CaseReportService.class);
 			CaseReport cr = crs.getCaseReportByUuid(form.getReportUuid());
-			log.debug("Generating ClinicalDocument: " + cr);
 		}
 		
 		ClinicalDocument cdaDocument = new ClinicalDocument();

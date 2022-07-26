@@ -284,6 +284,7 @@ public class CaseReportUtil {
 	 * <strong>Should</strong> fail for a task where the last execution time cannot be resolved
 	 */
 	public synchronized static void executeTask(TaskDefinition taskDefinition) throws APIException, EvaluationException {
+
 		if (taskDefinition == null) {
 			throw new APIException("TaskDefinition can't be null");
 		}
@@ -324,6 +325,7 @@ public class CaseReportUtil {
 		
 		evaluationContext.setParameterValues(params);
 		Cohort cohort = (Cohort) DefinitionContext.evaluate(definition, evaluationContext);
+		Date executionTime = new Date();
 		
 		PatientService ps = Context.getPatientService();
 		CaseReportService caseReportService = Context.getService(CaseReportService.class);
@@ -348,7 +350,7 @@ public class CaseReportUtil {
 				}
 				caseReportService.saveCaseReport(caseReport);
 			} else {
-				log.debug(patient + " already has an item in the queue with the trigger " + triggerName);
+				log.info(patient + " already has an item in the queue with the trigger " + triggerName);
 			}
 		}
 		
@@ -363,6 +365,9 @@ public class CaseReportUtil {
 				log.warn("Failed to auto submit " + caseReport, t);
 			}
 		}
+
+		taskDefinition.setLastExecutionTime(executionTime);
+		Context.getSchedulerService().saveTaskDefinition(taskDefinition);
 	}
 	
 	/**

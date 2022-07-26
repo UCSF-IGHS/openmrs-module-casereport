@@ -109,7 +109,7 @@ public class CaseReportActivator extends BaseModuleActivator {
 			} else {
 				throw new APIException("Only CIEL concept mappings are currently allowed");
 			}
-			
+
 			CohortDefinition definition = new SqlCohortDefinition(cohortQuery.getSql());
 			definition.setName(cohortQuery.getName());
 			definition.setDescription(cohortQuery.getDescription());
@@ -117,7 +117,11 @@ public class CaseReportActivator extends BaseModuleActivator {
 				String label = Context.getMessageSourceService().getMessage("casereport.lastExecutionTime");
 				definition.addParameter(new Parameter(CaseReportConstants.LAST_EXECUTION_TIME, label, Date.class));
 			}
+			String obsConcept = "";
+			String obsvalueCoded = "";
 			if (cohortQuery.getConceptMappings() != null) {
+				obsConcept = cohortQuery.getConceptMappings().get(0);
+				obsvalueCoded = cohortQuery.getConceptMappings().get(1);
 				for (String mapping : cohortQuery.getConceptMappings()) {
 					definition.addParameter(new Parameter(mapping, mapping.replaceFirst(
 					    CaseReportConstants.CONCEPT_MAPPING_SEPARATOR, ":"), Concept.class));
@@ -125,12 +129,12 @@ public class CaseReportActivator extends BaseModuleActivator {
 			}
 			DefinitionContext.saveDefinition(definition);
 			addSchedulerTaskIfNecessary(cohortQuery.getName(), conceptStr, cohortQuery.getRepeatInterval(),
-			    cohortQuery.getAutoSubmit());
+			    cohortQuery.getAutoSubmit(), obsConcept, obsvalueCoded);
 		}
 	}
 	
-	private void addSchedulerTaskIfNecessary(String name, String concept, Long repeatInterval, Boolean autoSubmit) {
-		log.info("Creating Case Reports Task for: " + name);
+	private void addSchedulerTaskIfNecessary(String name, String concept, Long repeatInterval, Boolean autoSubmit,
+			String obsConcept, String obsvalueCoded) {
 		
 		SchedulerService ss = Context.getSchedulerService();
 		String className = CaseReportTask.class.getName();
@@ -142,6 +146,8 @@ public class CaseReportActivator extends BaseModuleActivator {
 			td.setStartOnStartup(false);
 			td.setProperty(CaseReportConstants.TRIGGER_NAME_TASK_PROPERTY, name);
 			td.setProperty(CaseReportConstants.CONCEPT_TASK_PROPERTY, concept);
+			td.setProperty(CaseReportConstants.OBS_CONCEPT, obsConcept);
+			td.setProperty(CaseReportConstants.OBS_VALUE_CODED, obsvalueCoded);
 			td.setRepeatInterval(repeatInterval);
 			if (Boolean.TRUE.equals(autoSubmit)) {
 				td.setProperty(CaseReportConstants.AUTO_SUBMIT_TASK_PROPERTY, "true");

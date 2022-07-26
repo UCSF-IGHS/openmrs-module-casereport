@@ -62,5 +62,9 @@ public class CaseReportConstants {
 	public static final String CIEL_CODE_REASON_FOR_STOPPING_ARVS = "1252";
 	
 	public static final String CIEL_CODE_DATE_OF_LAST_VISIT = "164093";
+
+	public static final String OBS_CONCEPT = "Code";
+
+	public static final String OBS_VALUE_CODED = "Value Coded";
 	
 }

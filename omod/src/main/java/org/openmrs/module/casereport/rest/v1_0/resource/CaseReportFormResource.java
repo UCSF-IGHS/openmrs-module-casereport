@@ -20,7 +20,7 @@ import org.openmrs.module.webservices.rest.web.resource.impl.DelegatingSubResour
 import org.openmrs.module.webservices.rest.web.response.ResourceDoesNotSupportOperationException;
 import org.openmrs.module.webservices.rest.web.response.ResponseException;
 
-@SubResource(parent = CaseReportResource.class, path = "reportform", supportedClass = CaseReportForm.class, supportedOpenmrsVersions = { "1.10.*", "1.11.*", "1.12.*", "2.0.*", "2.1.*", "2.2.*", "2.3.*"  })
+@SubResource(parent = CaseReportResource.class, path = "reportform", supportedClass = CaseReportForm.class, supportedOpenmrsVersions = { "1.10.*", "1.11.*", "1.12.*", "2.0.*", "2.1.*", "2.2.*", "2.3.*", "2.4.*"  })
 public class CaseReportFormResource extends DelegatingSubResource<CaseReportForm, CaseReport, CaseReportResource> {
 	
 	/**
