@@ -1,0 +1,24 @@
+{
+  "name": "Viral Load Request",
+  "concept": "CIEL_162078",
+  "description": "New Viral load request",
+  "repeatInterval": 180, /* 7 days (in seconds) */
+  "conceptMappings": [
+    "CIEL_162078"
+  ],
+  "sql": "
+
+  /*
+   * Name:Viral Load Request
+   * Query Type: SQL Cohort Query
+   * Description: Patients with new Lab Orders
+   */
+
+  SELECT person_id
+  FROM obs
+  WHERE
+    date(date_created) >= date(:lastExecutionTime)
+  AND (concept_id = :CIEL_162078 AND value_datetime IS NOT NULL)
+  AND not voided;
+"
+}

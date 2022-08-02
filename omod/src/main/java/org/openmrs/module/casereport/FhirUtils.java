@@ -22,7 +22,8 @@ import org.openmrs.module.fhir2.api.FhirPractitionerService;
 public class FhirUtils {
 
 	public static void processEncounter(Bundle bundle, Composition.SectionComponent sectionComponent,
-			Encounter encounter) {
+			Encounter encounter, FhirEncounterService fhirEncounterService,
+										FhirPractitionerService fhirPractitionerService, FhirLocationService fhirLocationService) {
 		//Add encounter
 		String encounterFullUrl;
 
@@ -34,10 +35,10 @@ public class FhirUtils {
 		if (encounter.hasPartOf()) {
 			String partOfEncounterUuid = org.openmrs.module.fhir2.api.util.FhirUtils.referenceToId(
 					encounter.getPartOf().getReference()).orElse("");
-			FhirEncounterService encounterService = Context.getService(FhirEncounterService.class);
-			Encounter partOfEncounter = encounterService.get(partOfEncounterUuid);
+			Encounter partOfEncounter = fhirEncounterService.get(partOfEncounterUuid);
 			if (partOfEncounter != null) {
-				processEncounter(bundle, sectionComponent, partOfEncounter);
+				processEncounter(bundle, sectionComponent, partOfEncounter, fhirEncounterService,
+						fhirPractitionerService, fhirLocationService);
 			}
 		}
 
@@ -49,7 +50,6 @@ public class FhirUtils {
 					String practitionerUuid = org.openmrs.module.fhir2.api.util.FhirUtils.referenceToId(
 									encounterParticipant.getIndividual().getReference())
 							.orElse("");
-					FhirPractitionerService fhirPractitionerService = Context.getService(FhirPractitionerService.class);
 					Practitioner practitioner = fhirPractitionerService.get(practitionerUuid);
 					if (practitioner != null) {
 						practitionerFullUrl = "Practitioner/" + practitioner.getIdElement().getValue();
@@ -68,7 +68,6 @@ public class FhirUtils {
 				if (encounterLocation.hasLocation()) {
 					String locationUuid = org.openmrs.module.fhir2.api.util.FhirUtils.referenceToId(
 							encounterLocation.getLocation().getReference()).orElse("");
-					FhirLocationService fhirLocationService = Context.getService(FhirLocationService.class);
 					Location location = fhirLocationService.get(locationUuid);
 					if (location != null) {
 						locationFullUrl = "Location/" + location.getIdElement().getValue();
