@@ -359,6 +359,12 @@ public class HealthInfoExchangeListener implements ApplicationListener<CaseRepor
                 .setSystem("http://openhie.org/fhir/lab-integration/vl-reason-code")
                 .setCode(reasonForVLObs.getValueCoded().getName().getName());
 
+        Optional<Bundle.BundleEntryComponent> practitioner = bundle.getEntry().stream()
+                .filter(b -> b.getResource().getResourceType().equals(ResourceType.Practitioner))
+                .findFirst();
+        practitioner.get().getFullUrl();
+        serviceRequest.setRequester(new Reference(practitioner.get().getFullUrl()));
+
         addBundleEntry(bundle, serviceRequestFullUrl, serviceRequest, "ServiceRequest");
 
         String taskFullUrl = "Task/" + uuid;
