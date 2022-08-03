@@ -29,6 +29,7 @@ import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.Person;
 import org.openmrs.api.APIException;
+import org.openmrs.api.EncounterService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.casereport.CaseReport.Status;
@@ -72,21 +73,23 @@ public class HealthInfoExchangeListener implements ApplicationListener<CaseRepor
     private final SimpleDateFormat sqlDateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final SimpleDateFormat localeDateformatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
     @Autowired
-    FhirEncounterService encounterService;
+    FhirEncounterService fhirEncounterService;
 
+    @Autowired
+    EncounterService encounterService;
     @Autowired
     ObsService obsService;
 
     @Autowired
-    FhirPractitionerService practitionerService;
+    FhirPractitionerService fhirPractitionerService;
 
     @Autowired
-    FhirLocationService locationService;
+    FhirLocationService fhirLocationService;
 
     @Autowired
-    FhirObservationService observationService;
+    FhirObservationService fhirObservationService;
     @Autowired
-    private FhirPatientService patientService;
+    private FhirPatientService fhirPatientService;
     @Autowired
     private WebServiceTemplate webServiceTemplate;
     @Autowired
@@ -179,7 +182,7 @@ public class HealthInfoExchangeListener implements ApplicationListener<CaseRepor
         try {
             // patient data
             String personUUID = caseReport.getPatient().getPerson().getUuid();
-            org.hl7.fhir.r4.model.Patient patient = patientService.get(personUUID);
+            org.hl7.fhir.r4.model.Patient patient = fhirPatientService.get(personUUID);
             setOfficialName(patient.getName());
             setOpenhieId(patient);
             patient.getIdentifier().add(setOrganizationId());
@@ -189,7 +192,7 @@ public class HealthInfoExchangeListener implements ApplicationListener<CaseRepor
             ReferenceParam subject = new ReferenceParam();
             subject.setValue(patient.getId());
             subjectReference.addValue(new ReferenceOrListParam().add(subject));
-            IBundleProvider encounterRecords = encounterService.searchForEncounters(null,
+            IBundleProvider encounterRecords = fhirEncounterService.searchForEncounters(null,
                     null, null, subjectReference, null,
                     null, null, null, null);
 
@@ -214,7 +217,7 @@ public class HealthInfoExchangeListener implements ApplicationListener<CaseRepor
                 TokenAndListParam vcodedTokenAndListParam = new TokenAndListParam();
                 TokenParam vcodedTokenParam = new TokenParam(v.getUuid());
                 vcodedTokenAndListParam.addAnd(vcodedTokenParam);
-                observationRecords = observationService.searchForObservations(null,
+                observationRecords = fhirObservationService.searchForObservations(null,
                         subjectReference, null, vcodedTokenAndListParam, null,
                         null, null, null, conceptTokenAndListParam,
                         null, null, null, null, null, null);
@@ -225,10 +228,10 @@ public class HealthInfoExchangeListener implements ApplicationListener<CaseRepor
                 TokenAndListParam conceptTokenAndListParam = new TokenAndListParam();
                 conceptTokenAndListParam.addAnd(new TokenParam(concept.getUuid()));
 
-                observationRecords = observationService.getLastnEncountersObservations(new NumberParam(1),
+                observationRecords = fhirObservationService.getLastnEncountersObservations(new NumberParam(1),
                         subjectReference, null, conceptTokenAndListParam);
             } else {
-                observationRecords = observationService.searchForObservations(null,
+                observationRecords = fhirObservationService.searchForObservations(null,
                         subjectReference, null, null, null,
                         null, null, null, null,
                         null, null, null, null, null, null);
@@ -260,11 +263,11 @@ public class HealthInfoExchangeListener implements ApplicationListener<CaseRepor
 
                     if (observation.hasEncounter()) {
                         String encounterUuid = FhirUtils.referenceToId(observation.getEncounter().getReference()).orElse("");
-                        Encounter encounter = encounterService.get(encounterUuid);
+                        Encounter encounter = fhirEncounterService.get(encounterUuid);
                         if (encounter != null) {
                             sectionComponent.setTitle("Encounter Info");
                             org.openmrs.module.casereport.FhirUtils.processEncounter(bundle, sectionComponent,
-                                    encounter, encounterService, practitionerService, locationService);
+                                    encounter, fhirEncounterService, fhirPractitionerService, fhirLocationService);
                             if (vlCaseReportTrigger != null) {
                                 processVLRequest(bundle, encounter, observation,
                                         patientFullUrl, caseReport.getPatient().getPerson());
@@ -308,9 +311,8 @@ public class HealthInfoExchangeListener implements ApplicationListener<CaseRepor
         String specimenIdConceptUUID = "159968AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
         String uuid = encounter.getIdElement().getValue();
-        org.openmrs.Encounter openMRSEncounter = new org.openmrs.Encounter();
-        openMRSEncounter.setUuid(uuid);
-        List<Obs> observations = obsService.getObservations(Arrays.asList(person), Arrays.asList(openMRSEncounter), null, null,
+        org.openmrs.Encounter openMrsEncounter = encounterService.getEncounterByUuid(uuid);
+        List<Obs> observations = obsService.getObservations(Arrays.asList(person), Arrays.asList(openMrsEncounter), null, null,
                 null, null, null, null, null, null, null, false, null);
 
         Obs specimenTypeObs = observations.stream().filter(obs ->
@@ -366,7 +368,7 @@ public class HealthInfoExchangeListener implements ApplicationListener<CaseRepor
         task.setIntent(Task.TaskIntent.ORDER);
         task.addIdentifier().setSystem("OHRI_ENCOUNTER_UUID").setValue(uuid);
         task.addIdentifier().setSystem("http://openhie.org/fhir/lab-integration/test-order-number")
-                .setValue(specimenIdObs.getValueText());
+                .setValue(String.valueOf(specimenIdObs.getValueNumeric().intValue()));
         task.setRequester(new Reference(organizationReference));
         task.setOwner(new Reference(labReference));
         task.setLastModified(today);
