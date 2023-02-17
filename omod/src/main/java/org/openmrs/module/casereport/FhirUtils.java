@@ -14,7 +14,6 @@ import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Reference;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.fhir2.api.FhirEncounterService;
 import org.openmrs.module.fhir2.api.FhirLocationService;
 import org.openmrs.module.fhir2.api.FhirPractitionerService;
@@ -23,14 +22,19 @@ public class FhirUtils {
 
 	public static void processEncounter(Bundle bundle, Composition.SectionComponent sectionComponent,
 			Encounter encounter, FhirEncounterService fhirEncounterService,
-										FhirPractitionerService fhirPractitionerService, FhirLocationService fhirLocationService) {
+			FhirPractitionerService fhirPractitionerService, FhirLocationService fhirLocationService) {
 		//Add encounter
-		String encounterFullUrl;
+		String encounterFullUrl = "Encounter/" + encounter.getIdElement().getValue();
 
-		encounterFullUrl = "Encounter/" + encounter.getIdElement().getValue();
-		bundle.addEntry().setFullUrl(encounterFullUrl).setResource(encounter).getRequest().setUrl("Encounter")
-				.setMethod(Bundle.HTTPVerb.POST);
-		sectionComponent.addEntry(new Reference(encounterFullUrl));
+		boolean hasEncounter = bundle.getEntry().stream()
+				.filter(bundleEntryComponent -> bundleEntryComponent.getFullUrl().equals(encounterFullUrl))
+				.count() > 0;
+
+		if (!hasEncounter) {
+			bundle.addEntry().setFullUrl(encounterFullUrl).setResource(encounter).getRequest().setUrl("Encounter")
+					.setMethod(Bundle.HTTPVerb.POST);
+			sectionComponent.addEntry(new Reference(encounterFullUrl));
+		}
 
 		if (encounter.hasPartOf()) {
 			String partOfEncounterUuid = org.openmrs.module.fhir2.api.util.FhirUtils.referenceToId(
@@ -53,9 +57,17 @@ public class FhirUtils {
 					Practitioner practitioner = fhirPractitionerService.get(practitionerUuid);
 					if (practitioner != null) {
 						practitionerFullUrl = "Practitioner/" + practitioner.getIdElement().getValue();
-						bundle.addEntry().setFullUrl(practitionerFullUrl).setResource(practitioner).getRequest()
-								.setUrl("Practitioner").setMethod(Bundle.HTTPVerb.POST);
-						sectionComponent.addEntry(new Reference(practitionerFullUrl));
+						final String pUrl = practitionerFullUrl;
+
+						boolean hasPractitioner = bundle.getEntry().stream()
+								.filter(bundleEntryComponent -> bundleEntryComponent.getFullUrl().equals(pUrl))
+								.count() > 0;
+
+						if (!hasPractitioner) {
+							bundle.addEntry().setFullUrl(practitionerFullUrl).setResource(practitioner).getRequest()
+									.setUrl("Practitioner").setMethod(Bundle.HTTPVerb.POST);
+							sectionComponent.addEntry(new Reference(practitionerFullUrl));
+						}
 					}
 				}
 			}
@@ -71,9 +83,17 @@ public class FhirUtils {
 					Location location = fhirLocationService.get(locationUuid);
 					if (location != null) {
 						locationFullUrl = "Location/" + location.getIdElement().getValue();
-						bundle.addEntry().setFullUrl(locationFullUrl).setResource(location).getRequest()
-								.setUrl("Location").setMethod(Bundle.HTTPVerb.POST);
-						sectionComponent.addEntry(new Reference(locationFullUrl));
+						final String lUrl = locationFullUrl;
+
+						boolean hasLocation = bundle.getEntry().stream()
+								.filter(bundleEntryComponent -> bundleEntryComponent.getFullUrl().equals(lUrl))
+								.count() > 0;
+
+						if (!hasLocation) {
+							bundle.addEntry().setFullUrl(locationFullUrl).setResource(location).getRequest()
+									.setUrl("Location").setMethod(Bundle.HTTPVerb.POST);
+							sectionComponent.addEntry(new Reference(locationFullUrl));
+						}
 					}
 				}
 			}

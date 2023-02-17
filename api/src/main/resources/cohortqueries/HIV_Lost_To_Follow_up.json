@@ -1,0 +1,28 @@
+{
+  "name": "HIV Lost To Follow Up",
+  "concept": "CIEL_5240",
+  "description": "HIV patients who have not been seen for at least 18 months",
+  "repeatInterval": 180, /* 3 minutes (in seconds) */
+  "sql": "
+
+  /*
+   * Name:HIV Lost To Follow Up
+   * Query Type: SQL Cohort Query
+   * Description: HIV patients who have not been seen for at least 18 months
+   * Assumption: Database has only HIV patients
+   * HIV Case Reporting Module has already excluded patients previously added to the list.
+   */
+
+  SELECT e2.patient_id
+  FROM (
+    SELECT e1.patient_id, max(e1.encounter_datetime) as latest_encounter_date
+    FROM encounter e1
+    WHERE not e1.voided
+    GROUP BY e1.patient_id
+  ) as e2
+  WHERE
+    date(e2.latest_encounter_date) <= DATE_SUB(now(), INTERVAL 18 MONTH)
+  AND
+    date(e2.latest_encounter_date) > DATE_SUB(:lastExecutionTime, INTERVAL 18 MONTH);
+"
+}

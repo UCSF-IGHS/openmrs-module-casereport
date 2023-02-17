@@ -1,0 +1,23 @@
+{
+  "name": "New COVID19 Immunization",
+  "concept": "CIEL_1410",
+  "description": "New COVID19 immunization",
+  "repeatInterval": 180, /* 3 minutes (in seconds) */
+  "conceptMappings": [
+    "CIEL_1410" /* VACCINATION DATE */
+  ],
+  "sql": "
+
+  /*
+   * Name:New COVID19 Immunization
+   * Query Type: SQL Cohort Query
+   * Description: Newly immunized COVID19 patients
+   */
+
+  SELECT person_id
+  FROM obs o JOIN concept q ON o.concept_id = q.concept_id
+  WHERE o.date_created >= :lastExecutionTime
+  AND ( q.uuid = 'e41fbe17-4aee-4a44-950b-6676d6e0ede2')
+  AND NOT voided;
+  "
+}

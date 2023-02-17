@@ -1,0 +1,26 @@
+{
+  "name": "New COVID19 Case",
+  "concept": "CIEL_163724",
+  "description": "Patients newly diagnosed with COVID19",
+  "repeatInterval": 180, /* 7 days (in seconds) */
+  "conceptMappings": [
+    "CIEL_163724"
+  ],
+  "sql": "
+
+  /*
+   * Name:New COVID19 Case
+   * Query Type: SQL Cohort Query
+   * Description: Patients newly diagnosed with COVID19
+   */
+
+  SELECT person_id
+  FROM obs o JOIN concept q ON o.concept_id = q.concept_id
+  JOIN concept a ON o.value_coded = a.concept_id
+  WHERE o.date_created >= :lastExecutionTime
+  AND (
+    (q.uuid='cbcbb029-f11f-4437-9d53-1d0f0a170433' OR q.uuid='3f4ee14b-b4ab-4597-9fe9-406883b63d76')
+    AND a.uuid = '703AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+  AND NOT voided;
+"
+}

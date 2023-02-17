@@ -232,6 +232,16 @@
             2.16.840.1.113883.6.96:SNOMED CT:410658008:Trigger
         </description>
     </globalProperty>
+    <globalProperty>
+        <property>${project.parent.artifactId}.organizationReference</property>
+        <defaultValue>Organization/HIVOrganizationExample2</defaultValue>
+        <description>Organization Reference</description>
+    </globalProperty>
+    <globalProperty>
+        <property>${project.parent.artifactId}.labReference</property>
+        <defaultValue>Organization/HIVOrganizationExample</defaultValue>
+        <description>Lab Reference</description>
+    </globalProperty>
 
     <!-- Privileges -->
     <privilege>

@@ -1,0 +1,25 @@
+{
+  "name": "New HIV Treatment",
+  "concept": "CIEL_1256",
+  "description": "HIV patients for starting treatment",
+  "repeatInterval": 240, /* 4 minutes (in seconds) */
+  "conceptMappings": [
+    "CIEL_1256" /* START DRUGS */
+  ],
+  "sql": "
+
+  /*
+   * Name:New HIV Treatment
+   * Query Type: SQL Cohort Query
+   * Description: HIV patients for starting treatment
+   * Assumption: Database has only HIV patients
+   * HIV Case Reporting Module has already excluded patients previously added to the list.
+   */
+
+  SELECT person_id
+  FROM obs o JOIN concept q ON o.concept_id = q.concept_id
+  WHERE o.date_created >= :lastExecutionTime
+  AND ( q.uuid = '7557d77c-172b-4673-9335-67a38657dd01' AND value_coded = :CIEL_1256 )
+  AND NOT voided;
+"
+}

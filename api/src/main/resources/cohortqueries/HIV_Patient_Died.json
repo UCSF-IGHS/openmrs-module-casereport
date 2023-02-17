@@ -1,0 +1,25 @@
+{
+  "name": "HIV Patient Died",
+  "concept": "CIEL_159",
+  "description": "HIV patients who have died",
+  "repeatInterval": 180, /* 3 minutes (in seconds) */
+  "sql": "
+
+  /*
+   * Name:HIV Patient Died
+   * Query Type: SQL Cohort Query
+   * Description: HIV patients who have died
+   * Assumption: Database has only HIV patients
+   * HIV Case Reporting Module has already excluded patients previously added to the list.
+   */
+
+  SELECT person_id
+  FROM person
+  WHERE dead = 1
+  AND(
+    date_created >= :lastExecutionTime
+    OR date_changed >= :lastExecutionTime
+  )
+  AND NOT voided;
+"
+}

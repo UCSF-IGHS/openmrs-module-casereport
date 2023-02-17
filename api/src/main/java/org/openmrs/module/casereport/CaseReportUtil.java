@@ -288,14 +288,16 @@ public class CaseReportUtil {
 		if (taskDefinition == null) {
 			throw new APIException("TaskDefinition can't be null");
 		}
-		
+		System.out.println("CaseReportUtil executeTask() called...");
 		String triggerName = taskDefinition.getProperty(CaseReportConstants.TRIGGER_NAME_TASK_PROPERTY);
 		if (StringUtils.isBlank(triggerName)) {
+			System.err.println("CaseReportUtil task doesn't have triggername property...");
 			throw new APIException(taskDefinition.getName() + " task doesn't have a "
 			        + CaseReportConstants.TRIGGER_NAME_TASK_PROPERTY + " property");
 		}
 		SqlCohortDefinition definition = getSqlCohortDefinition(triggerName);
 		if (definition == null) {
+			System.out.println("CaseReportUtil No SQL cohort query...");
 			throw new APIException("No sql cohort query was found that matches the name: " + triggerName);
 		}
 		EvaluationContext evaluationContext = new EvaluationContext();
@@ -333,11 +335,13 @@ public class CaseReportUtil {
 		for (Integer patientId : cohort.getMemberIds()) {
 			Patient patient = ps.getPatient(patientId);
 			if (patient == null) {
+				System.out.println("CaseReportUtil No patient found with patientId...");
 				throw new APIException("No patient found with patientId: " + patientId);
 			}
 			
 			boolean autoSubmit = false;
 			if ("true".equals(taskDefinition.getProperty(CaseReportConstants.AUTO_SUBMIT_TASK_PROPERTY))) {
+				System.out.println("CaseReportUtil autoSubmit is true...");
 				autoSubmit = true;
 			}
 			CaseReport caseReport = createReportIfNecessary(patient, autoSubmit, triggerName);

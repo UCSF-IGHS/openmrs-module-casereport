@@ -31,22 +31,28 @@ public class CaseReportTask extends AbstractTask {
 	 */
 	@Override
 	public void execute() {
+		System.out.println("\n\n CaseReportTask \n\n");
+		System.out.println("CaseReportTask executing...");
 		if (!isExecuting) {
 			if (log.isDebugEnabled()) {
 				log.debug("Executing case report task...");
 			}
 			
 			startExecuting();
+			System.out.println("CaseReportTask startExecuting() called...");
 			
 			try {
 				String trigger = getTaskDefinition().getProperty(CaseReportConstants.TRIGGER_NAME_TASK_PROPERTY);
 				if (StringUtils.isBlank(trigger)) {
+					System.err.println("The Trigger Name property is required for a Case Report Task");
 					throw new APIException("The Trigger Name property is required for a Case Report Task");
 				}
-				
+
+				System.out.println("CaseReportTask Calling CaseReportUtil.executeTask...");
 				CaseReportUtil.executeTask(getTaskDefinition());
 				
 				if (log.isDebugEnabled()) {
+					System.out.println("CaseReportTask Case report task executed successfully!");
 					log.debug("Case report task executed successfully!");
 				}
 			}

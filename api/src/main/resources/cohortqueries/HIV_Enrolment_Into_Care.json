@@ -1,0 +1,26 @@
+{
+  "name": "HIV Enrolment Into Care",
+  "concept": "CIEL_160555",
+  "description": "HIV Enrolment Into Care",
+  "repeatInterval": 120, /* 2 minutes (in seconds) */
+  "conceptMappings": [
+    "CIEL_160555"
+  ],
+  "sql": "
+
+  /*
+   * Name:HIV Enrolment Into Care - EpisodeOfCare
+   * Query Type: SQL Cohort Query
+   * Description: Patients newly enroled in HIV care
+   */
+
+  SELECT person_id
+  FROM obs o JOIN concept q ON o.concept_id = q.concept_id
+  JOIN encounter e ON o.encounter_id = e.encounter_id
+  JOIN encounter_type et ON e.encounter_type = et.encounter_type_id
+  WHERE o.date_created >= :lastExecutionTime
+  AND ( q.uuid = '160555AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' )
+  AND ( et.uuid = '7e54cd64-f9c3-11eb-8e6a-57478ce139b0')
+  AND NOT o.voided;
+"
+}

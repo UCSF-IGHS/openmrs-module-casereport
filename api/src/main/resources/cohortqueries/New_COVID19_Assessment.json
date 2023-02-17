@@ -1,0 +1,26 @@
+{
+  "name": "New COVID19 Assessment",
+  "concept": "CIEL_160753",
+  "description": "New COVID19 assessment",
+  "repeatInterval": 180, /* 3 minutes (in seconds) */
+  "conceptMappings": [
+    "CIEL_160753" /* DATE OF EVENT */
+  ],
+  "sql": "
+
+  /*
+   * Name:New COVID19 Assessment
+   * Query Type: SQL Cohort Query
+   * Description: Newly assessed COVID19 patients
+   */
+
+  SELECT person_id
+  FROM obs o JOIN concept q ON o.concept_id = q.concept_id
+  JOIN encounter e ON o.encounter_id = e.encounter_id
+  JOIN encounter_type et ON e.encounter_type = et.encounter_type_id
+  WHERE o.date_created >= :lastExecutionTime
+  AND ( q.uuid = '160753AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' )
+  AND ( et.uuid = '253a43d3-c99e-415c-8b78-ee7d4d3c1d54' )
+  AND NOT o.voided;
+  "
+}

@@ -268,8 +268,8 @@
         <dependency>
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>fhir2-api</artifactId>
-			<version>1.3.0</version>
-			<scope>provided</scope>				
+			<version>1.8.0</version>
+			<scope>provided</scope>
 		</dependency> 
 
 	</dependencies>
@@ -422,6 +422,14 @@
                     <execArgs>${gem.home}/bin/compass compile ${basedir}/src/main/compass</execArgs>
                 </configuration>
             </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>8</source>
+					<target>8</target>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

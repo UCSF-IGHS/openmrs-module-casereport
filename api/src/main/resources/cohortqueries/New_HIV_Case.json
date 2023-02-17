@@ -18,9 +18,8 @@
 
   SELECT person_id
   FROM obs
-  WHERE
-    date(date_created) >= date(:lastExecutionTime)
+  WHERE date_created >= :lastExecutionTime
   AND (concept_id = :CIEL_1040 AND value_coded = :CIEL_703)
-  AND not voided;
+  AND NOT voided;
 "
 }

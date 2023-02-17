@@ -1,7 +1,7 @@
 {
-  "name": "Viral Load Request",
+  "name": "COVID19 Lab Test Order",
   "concept": "CIEL_162078",
-  "description": "New Viral load request",
+  "description": "New COVID19 lab test order",
   "repeatInterval": 180, /* 7 days (in seconds) */
   "conceptMappings": [
     "CIEL_162078"
@@ -9,9 +9,9 @@
   "sql": "
 
   /*
-   * Name:Viral Load Request
+   * Name:COVID19 Lab Test Order
    * Query Type: SQL Cohort Query
-   * Description: Patients with new Lab Orders
+   * Description: Patients with new COVID19 Lab Test Orders
    */
 
   SELECT person_id
@@ -19,8 +19,8 @@
   JOIN encounter e ON o.encounter_id = e.encounter_id
   JOIN encounter_type et ON e.encounter_type = et.encounter_type_id
   WHERE o.date_created >= :lastExecutionTime
-  AND ( q.uuid = '162078AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' )
-  AND ( et.uuid = '41af1931-184e-45f8-86ca-d42e0db0b8a1' )
+  AND ( q.uuid = '069f6dfe-88c1-4a45-a894-0d99549c8718' )
+  AND ( et.uuid = 'a77d3e7f-5c8f-4074-a207-77a70e197b0c')
   AND NOT o.voided;
 "
 }
